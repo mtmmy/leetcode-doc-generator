@@ -16,6 +16,12 @@ WAIT = WebDriverWait(CODE_DRIVER,10)
 
 LEETCODE_PROBLEMS = []
 
+GITHUB_URL_CSHARP = "https://github.com/mtmmy/Leetcode/tree/master/Csharp/Leetcode/"
+
+LOCAL_PATH_LEETCODE = "/Users/mtmmy/Projects/Leetcode/"
+LOCAL_PATH_CSHARP = LOCAL_PATH_LEETCODE + "Csharp/Leetcode/"
+
+
 class Problem (object):
     def __init__ (self, number, title, href, acceptance, difficulty ):
         self.number = number
@@ -84,13 +90,11 @@ def scrap_description():
     while go_to_next_page("reactable-next-page"):        
         LEETCODE_PROBLEMS += get_problem_rows(table)    
 
-    csharp_path = "/Users/mtmmy/Projects/Leetcode/Csharp/Leetcode/"
-    folders = get_folders(csharp_path)
+    folders = get_folders(LOCAL_PATH_CSHARP)
     
     for problem in LEETCODE_PROBLEMS:
         if problem.number in folders:
-            problem_path = csharp_path + folders[problem.number]
-            file_path = problem_path + "/README.md"
+            file_path = LOCAL_PATH_CSHARP + folders[problem.number] + "/README.md"
             
             if not os.path.isfile(file_path):
                 CODE_DRIVER.get(problem.href)
@@ -118,11 +122,9 @@ def scrap_description():
 
 def create_sum_file():
     global LEETCODE_PROBLEMS
-    csharp_github_url = "https://github.com/mtmmy/Leetcode/tree/master/Csharp/Leetcode/"
-    csharp_local_path = "/Users/mtmmy/Projects/Leetcode/Csharp/Leetcode/"
-    folders = get_folders(csharp_local_path)
-    leetcode_path = "/Users/mtmmy/Projects/Leetcode/"
-    sum_file_path = leetcode_path + "README.md"
+    
+    folders = get_folders(LOCAL_PATH_CSHARP)    
+    sum_file_path = LOCAL_PATH_LEETCODE + "README.md"
 
     LEETCODE_PROBLEMS.sort(key=lambda x: x.number, reverse=False)
 
@@ -137,7 +139,7 @@ def create_sum_file():
             folder_name = folders[p.number]
             data = {
                 'num': p.number,
-                'title': '[' + p.title + "](" + csharp_github_url + folder_name + ")",
+                'title': '[' + p.title + "](" + GITHUB_URL_CSHARP + folder_name + ")",
                 'acceptance': p.acceptance,
                 'difficulty': p.difficulty,
                 'language': "C#"
@@ -152,10 +154,9 @@ if __name__ == "__main__":
     scrap_description()
     CODE_DRIVER.close()
     create_sum_file()
-    # csharp_path = '/Users/mtmmy/Projects/Leetcode/Csharp/Leetcode/'
-    # folders = get_folders(csharp_path)
+    # folders = get_folders(LOCAL_PATH_CSHARP)
     # for key in folders:
-    #     file_name = csharp_path + folders[key] + "/README.md"
+    #     file_name = LOCAL_PATH_CSHARP + folders[key] + "/README.md"
     #     try:
     #         os.remove(file_name)
     #     except OSError:
