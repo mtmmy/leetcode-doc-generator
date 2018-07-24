@@ -19,10 +19,12 @@ LEETCODE_PROBLEMS = []
 GITHUB_URL = "https://github.com/mtmmy/Leetcode/tree/master/"
 GITHUB_URL_CSHARP = GITHUB_URL + "Csharp/Leetcode/"
 GITHUB_URL_JAVA = GITHUB_URL + "Java/Leetcode/src/main/java/com/leetcode/"
+GITHUB_URL_PYTHON = GITHUB_URL + "Python/"
 
 LOCAL_PATH_LEETCODE = "/Users/mtmmy/Projects/Leetcode/"
 LOCAL_PATH_CSHARP = LOCAL_PATH_LEETCODE + "Csharp/Leetcode/"
 LOCAL_PATH_JAVA = LOCAL_PATH_LEETCODE + "Java/Leetcode/src/main/java/com/leetcode/"
+LOCAL_PATH_PYTHON = LOCAL_PATH_LEETCODE + "Python/"
 
 class Problem (object):
     def __init__ (self, number, title, href, acceptance, difficulty ):
@@ -49,6 +51,10 @@ def get_folders(type, path):
         if type == "JAVA":
             if str(p).startswith("_0"):
                 num = p[1:5]
+                folders_dictionary[int(num)] = p
+        if type == "PYTHON":
+            if str(p).startswith("0"):
+                num = p[0:4]
                 folders_dictionary[int(num)] = p
     return folders_dictionary
 
@@ -104,6 +110,8 @@ def create_read_me(type):
         local_path = LOCAL_PATH_CSHARP
     elif type == "JAVA":
         local_path = LOCAL_PATH_JAVA
+    elif type == "PYTHON":
+        local_path = LOCAL_PATH_PYTHON
 
     folders = get_folders(type, local_path)
     
@@ -160,14 +168,15 @@ def scrap_description():
 
     create_read_me("CSHARP")
     create_read_me("JAVA")
+    create_read_me("PYTHON")
     
 def write_problem_row(p):
     data = {
         'num': p.number,
-        'title': '[' + p.title + "](" + p.github_url + ")",
+        'title': '[' + p.title + "](" + p.href + ")",
         'acceptance': p.acceptance,
         'difficulty': p.difficulty,
-        'language': p.language
+        'language': "[" + p.language + "](" + p.github_url + ")"
     }
     line = "|{num}|{title}|{acceptance}|{difficulty}|{language}|\n".format(**data)
     return line
@@ -180,6 +189,7 @@ def create_sum_file():
     
     folders_csharp = get_folders("CSHARP", LOCAL_PATH_CSHARP)
     folders_java = get_folders("JAVA", LOCAL_PATH_JAVA)
+    folders_python = get_folders("PYTHON", LOCAL_PATH_PYTHON)
     sum_file_path = LOCAL_PATH_LEETCODE + "README.md"
 
     LEETCODE_PROBLEMS.sort(key=lambda x: x.number, reverse=False)
@@ -197,10 +207,15 @@ def create_sum_file():
             p.set_language("C#")
             p.set_github_url(GITHUB_URL_CSHARP + folder_name)
             line = write_problem_row(p)
-        if p.number in folders_java:
+        elif p.number in folders_java:
             folder_name = folders_java[p.number]
-            p.set_language("JAVA")
+            p.set_language("Java")
             p.set_github_url(GITHUB_URL_JAVA + folder_name)
+            line = write_problem_row(p)
+        elif p.number in folders_python:
+            folder_name = folders_python[p.number]
+            p.set_language("Python")
+            p.set_github_url(GITHUB_URL_PYTHON + folder_name)
             line = write_problem_row(p)
         file.write(line)
             
