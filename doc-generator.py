@@ -33,10 +33,12 @@ class Problem (object):
         self.href = href
         self.acceptance = acceptance
         self.difficulty = difficulty
-    def set_language (self, language):
-        self.language = language
-    def set_github_url (self, url):
-        self.github_url = url
+        self.language = []
+        self.github_url = []
+    def add_language (self, language):
+        self.language.append(language)
+    def add_github_url (self, url):
+        self.github_url.append(url)
 
 def get_folders(type, path):
     """
@@ -171,12 +173,17 @@ def scrap_description():
     create_read_me("PYTHON")
     
 def write_problem_row(p):
+    language_list = []
+
+    for i in range(len(p.language)):
+        language_list.append("[" + p.language[i] + "](" + p.github_url[i] + ")")
+
     data = {
         'num': p.number,
         'title': '[' + p.title + "](" + p.href + ")",
         'acceptance': p.acceptance,
         'difficulty': p.difficulty,
-        'language': "[" + p.language + "](" + p.github_url + ")"
+        'language': ", ".join(language_list)
     }
     line = "|{num}|{title}|{acceptance}|{difficulty}|{language}|\n".format(**data)
     return line
@@ -204,19 +211,20 @@ def create_sum_file():
         line = ""
         if p.number in folders_csharp:
             folder_name = folders_csharp[p.number]
-            p.set_language("C#")
-            p.set_github_url(GITHUB_URL_CSHARP + folder_name)
-            line = write_problem_row(p)
-        elif p.number in folders_java:
+            p.add_language("C#")
+            p.add_github_url(GITHUB_URL_CSHARP + folder_name)
+            
+        if p.number in folders_java:
             folder_name = folders_java[p.number]
-            p.set_language("Java")
-            p.set_github_url(GITHUB_URL_JAVA + folder_name)
-            line = write_problem_row(p)
-        elif p.number in folders_python:
+            p.add_language("Java")
+            p.add_github_url(GITHUB_URL_JAVA + folder_name)
+            
+        if p.number in folders_python:
             folder_name = folders_python[p.number]
-            p.set_language("Python")
-            p.set_github_url(GITHUB_URL_PYTHON + folder_name)
-            line = write_problem_row(p)
+            p.add_language("Python")
+            p.add_github_url(GITHUB_URL_PYTHON + folder_name)
+            
+        line = write_problem_row(p)
         file.write(line)
             
 if __name__ == "__main__":
