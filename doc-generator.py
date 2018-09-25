@@ -70,9 +70,10 @@ def sign_into_leetcode():
     password = input("Enter your password: ")
 
     CODE_DRIVER.get("https://leetcode.com/accounts/login/")
-    CODE_DRIVER.find_element_by_css_selector("#id_login").send_keys(username)
-    CODE_DRIVER.find_element_by_css_selector("#id_password").send_keys(password)
-    CODE_DRIVER.find_element_by_css_selector("#id_password").send_keys(Keys.ENTER)
+    loginBtn = WAIT.until(EC.presence_of_element_located((By.CLASS_NAME, "btn__2FMG")))
+    CODE_DRIVER.find_element_by_name("login").send_keys(username)
+    CODE_DRIVER.find_element_by_name("password").send_keys(password)
+    loginBtn.send_keys(Keys.ENTER)
 
     time.sleep(5)
 
