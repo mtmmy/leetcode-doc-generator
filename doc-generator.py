@@ -122,9 +122,15 @@ def create_read_me(type):
         if problem.number in folders:
             file_path = local_path + folders[problem.number] + "/README.md"
             
+            CODE_DRIVER.get(problem.href)
+            allDesc = WAIT.until(EC.presence_of_element_located((By.CLASS_NAME, "description__3vkv")))
+            description = allDesc.find_element_by_class_name("content__1c40")
+            topics = allDesc.find_element_by_class_name("topic-tag__Hn49")
+            simQs = allDesc.find_element_by_class_name("question__3owm")
+
+            file = None
             if not os.path.isfile(file_path):
-                CODE_DRIVER.get(problem.href)
-                description = WAIT.until(EC.presence_of_element_located((By.CLASS_NAME, "question-description__3U1T")))
+                            
                 children = description.find_element_by_tag_name("div").find_elements_by_xpath("*")
 
                 file = open(file_path, 'w')
@@ -153,7 +159,14 @@ def create_read_me(type):
                         file.write("```")
                         file.write("\n")
                 file.write("\n## Solution\n\n")
-                file.close()
+                # file.close()
+            else:
+                file = open(file_path, 'a')
+            
+
+
+            file.close()
+
 
 def scrap_description():
     
