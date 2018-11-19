@@ -116,18 +116,14 @@ def click_extra_info(probDesc):
 def write_description(element, myFile):
     if element.tag_name == "p":
         txt = element.text.strip()
-        if txt:
-            try:
-                CODE_DRIVER.implicitly_wait(0)
-                image = element.find_element_by_tag_name("img")
-                CODE_DRIVER.implicitly_wait(TIME_DELAY)
-                myFile.write("\n")
-                myFile.write("![image](" + image.get_attribute("src") + ")")
-                myFile.write("\n")
-            except NoSuchElementException:
-                CODE_DRIVER.implicitly_wait(TIME_DELAY)
+        if txt:            
             myFile.write("\n")
             myFile.write(element.text)
+            myFile.write("\n")
+        else:
+            image = element.find_element_by_tag_name("img")
+            myFile.write("\n")
+            myFile.write("![image](" + image.get_attribute("src") + ")")
             myFile.write("\n")
     elif element.tag_name == "pre":
         myFile.write("\n")
