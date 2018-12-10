@@ -2,3 +2,4 @@ chromedriver
 launch.json
 config.py
 objectdb
+settings.json

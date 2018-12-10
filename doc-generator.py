@@ -103,7 +103,7 @@ def get_problem_rows(table):
     return problems
 
 def click_extra_info(probDesc):
-    btns = probDesc.find_elements_by_class_name("css-1dhf2dg-baseHeaderStyle")
+    btns = probDesc.find_elements_by_css_selector("[class^=\"description__\"]>[class^=\"css-\"]")
     for btn in btns:
         while 1:
             try:
@@ -120,11 +120,14 @@ def write_description(element, myFile):
             myFile.write("\n")
             myFile.write(element.text)
             myFile.write("\n")
-        else:
+        try:
             image = element.find_element_by_tag_name("img")
             myFile.write("\n")
             myFile.write("![image](" + image.get_attribute("src") + ")")
             myFile.write("\n")
+        except NoSuchElementException:
+            # no image contained
+            pass
     elif element.tag_name == "pre":
         myFile.write("\n")
         myFile.write("```")
@@ -143,10 +146,11 @@ def write_description(element, myFile):
         myFile.write("\n")
         for i in range(len(children)):
             myFile.write(str(i + 1) + ". " + children[i].text + "\n")
-    else:
-        # to track if unconsidered tags matter
-        print("Some new tags: " + element.tag_name)
-        return
+    elif element.tag_name == "ul":
+        children = element.find_elements_by_xpath(".//li")
+        myFile.write("\n")
+        for ch in children:
+            myFile.write("- " + ch.text + "\n")
 
 def create_read_me(type):
     """
@@ -167,12 +171,12 @@ def create_read_me(type):
             file_path = local_path + folders[problem.number] + "/README.md"
             if not os.path.isfile(file_path):
                 CODE_DRIVER.get(problem.href)
-                allDesc = WAIT.until(EC.presence_of_element_located((By.CLASS_NAME, "description__3vkv")))
+                allDesc = WAIT.until(EC.presence_of_element_located((By.CSS_SELECTOR, "[class^=\"description__\"]")))
                 CODE_DRIVER.implicitly_wait(0)
-                description = WAIT.until(EC.presence_of_element_located((By.CLASS_NAME, "content__1c40"))) 
 
-                topics = allDesc.find_elements_by_class_name("topic-tag__Hn49")
-                simQs = allDesc.find_elements_by_class_name("title__3BnH")
+                description = allDesc.find_element_by_css_selector("[class^=\"description__\"]>[class^=\"content__\"]")
+                topics = allDesc.find_elements_by_css_selector("[class^=\"topic-tag__\"]")
+                simQs = allDesc.find_elements_by_css_selector("[class^=\"question__\"] > [class^=\"title__\"]")
 
                 click_extra_info(allDesc)
                 children = description.find_element_by_tag_name("div").find_elements_by_xpath("*")
@@ -190,7 +194,7 @@ def create_read_me(type):
                         topicsPrints = []
                         for topic in topics:
                             tipicUrl = topic.get_attribute("href")
-                            topicTxt = topic.find_element_by_class_name("tag__2PqS").text
+                            topicTxt = topic.find_element_by_tag_name("span").text
                             topicsPrints.append("[" + topicTxt + "](" + tipicUrl + ") ")
                         myFile.write(", ".join(topicsPrints))
                         myFile.write("\n")
@@ -202,39 +206,6 @@ def create_read_me(type):
                             simQsPrints.append("[" + q.text + "](" + q.get_attribute("href") + ")")
                         myFile.write(", ".join(simQsPrints))
                         myFile.write("\n")
-            # else:
-            #     '''
-            #     This part is only for exsiting files
-            #     '''
-            #     loadFile = open(file_path).read()
-
-            #     if "Related Topics" not in loadFile or "Similar Questions" not in loadFile:
-            #         CODE_DRIVER.get(problem.href)
-            #         allDesc = WAIT.until(EC.presence_of_element_located((By.CLASS_NAME, "description__3vkv")))
-            #         description = WAIT.until(EC.presence_of_element_located((By.CLASS_NAME, "content__1c40"))) 
-
-            #         topics = allDesc.find_elements_by_class_name("topic-tag__Hn49")
-            #         simQs = allDesc.find_elements_by_class_name("title__3BnH")
-
-            #         with open(file_path, 'a') as myFile:
-            #             click_extra_info(allDesc)
-            #             if topics:
-            #                 myFile.write("\n\n## Related Topics\n\n")
-            #                 topicsPrints = []
-            #                 for topic in topics:
-            #                     tipicUrl = topic.get_attribute("href")
-            #                     topicTxt = topic.find_element_by_class_name("tag__2PqS").text
-            #                     topicsPrints.append("[" + topicTxt + "](" + tipicUrl + ") ")
-            #                 myFile.write(", ".join(topicsPrints))                        
-                        
-            #             if simQs:
-            #                 myFile.write("\n\n## Similar Questions\n\n")
-            #                 simQsPrints = []
-            #                 for q in simQs:
-            #                     simQsPrints.append("[" + q.text + "](" + q.get_attribute("href") + ")")
-            #                 myFile.write(", ".join(simQsPrints))
-            #                 myFile.write("\n")
-
 
 def scrap_description():
     CODE_DRIVER.implicitly_wait(TIME_DELAY)
