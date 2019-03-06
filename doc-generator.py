@@ -8,7 +8,6 @@ from selenium.common.exceptions import WebDriverException
 import time
 import os
 import re
-import tkinter as tk
 
 TIME_DELAY = 10
 
@@ -26,6 +25,7 @@ LOCAL_PATH_LEETCODE = "/Users/mtmmy/Projects/Leetcode/"
 LOCAL_PATH_CSHARP = LOCAL_PATH_LEETCODE + "Csharp/Leetcode/"
 LOCAL_PATH_JAVA = LOCAL_PATH_LEETCODE + "Java/Leetcode/src/main/java/com/leetcode/"
 LOCAL_PATH_PYTHON = LOCAL_PATH_LEETCODE + "Python/"
+MISSING_PROBLEMS = set()
 
 class Problem (object):
     def __init__ (self, number, title, href, acceptance, difficulty ):
@@ -48,15 +48,15 @@ def get_folders(type, path):
     folders_dictionary = {}
     for p in os.listdir(path):
         if type == "CSHARP":
-            if str(p).startswith("0"):
+            if str(p).startswith("0") or str(p).startswith("1"):
                 num = p[0:4]
                 folders_dictionary[int(num)] = p
         if type == "JAVA":
-            if str(p).startswith("_0"):
+            if str(p).startswith("_0") or str(p).startswith("_1"):
                 num = p[1:5]
                 folders_dictionary[int(num)] = p
         if type == "PYTHON":
-            if str(p).startswith("0"):
+            if str(p).startswith("0") or str(p).startswith("1"):
                 num = p[0:4]
                 folders_dictionary[int(num)] = p
     return folders_dictionary
@@ -166,6 +166,7 @@ def create_read_me(type):
 
     folders = get_folders(type, local_path)
     
+    missing_problem = set()
     for problem in LEETCODE_PROBLEMS:
         if problem.number in folders:
             file_path = local_path + folders[problem.number] + "/README.md"
@@ -206,6 +207,15 @@ def create_read_me(type):
                             simQsPrints.append("[" + q.text + "](" + q.get_attribute("href") + ")")
                         myFile.write(", ".join(simQsPrints))
                         myFile.write("\n")
+        else:
+            missing_problem.add(problem.number)
+    global MISSING_PROBLEMS
+    if type == "CSHARP":
+        MISSING_PROBLEMS = missing_problem
+    else:
+        MISSING_PROBLEMS &= missing_problem
+    
+
 
 def scrap_description():
     CODE_DRIVER.implicitly_wait(TIME_DELAY)
@@ -280,6 +290,7 @@ if __name__ == "__main__":
     scrap_description()
     CODE_DRIVER.close()
     create_sum_file()
+    print(MISSING_PROBLEMS)
     # ----------------------------------
     # remove all files under the path. If you need to regenerate all files, run this
     # 
